@@ -125,7 +125,7 @@ if (!triggered) {
         name: "confirm",
         message: "생성하시겠습니까?"
       }
-    ])
+    ])    
     .then(answers => {
       if (answers.confirm) {
         makeTemplate(answers.type, answers.name, answers.directory);

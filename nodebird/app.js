@@ -4,12 +4,17 @@ const morgan = require("morgan");
 const path = require("path");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
 require("dotenv").config();
 
 const indexRouter = require("./routes");
 // const userRouter = require("./routes/user");
+const { sequelize } = require("./models");
+const passportConfig = require("./passport");
 
 const app = express();
+sequelize.sync();
+passportConfig(passport);
 
 app.set("port", process.env.PORT || 8001);
 app.set("view engine", "pug");
@@ -32,6 +37,8 @@ app.use(
   })
 );
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/", indexRouter);
 
