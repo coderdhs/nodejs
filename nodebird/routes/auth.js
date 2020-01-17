@@ -1,6 +1,6 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const passport = require("passport");
+const bcrypt = require("bcrypt");
 
 const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
 const { User } = require("../models");
@@ -10,14 +10,14 @@ const router = express.Router();
 router.post("/join", isNotLoggedIn, async (req, res, next) => {
   const { email, nick, password } = req.body;
   try {
-    const exUser = await User.find({ where: { email } });
+    const exUser = await User.findOne({ where: { email } });
     if (exUser) {
       req.flash("joinError", "already joined email");
       return res.redirect("/join");
     }
-    console.time("bcrypt time");
+    // console.time("bcrypt time");
     const hash = await bcrypt.hash(password, 12);
-    console.timeEnd("bcrypt time");
+    // console.timeEnd("bcrypt time");
     await User.create({
       email,
       nick,
@@ -26,7 +26,7 @@ router.post("/join", isNotLoggedIn, async (req, res, next) => {
     return res.redirect("/");
   } catch (error) {
     console.error(error);
-    next(error);
+    return next(error);
   }
 });
 
@@ -52,10 +52,22 @@ router.post("/login", isNotLoggedIn, (req, res, next) => {
   })(req, res, next);
 });
 
-router.get("logout", isLoggedIn, (req, res) => {
+router.get("/logout", isLoggedIn, (req, res) => {
   req.logout();
   req.session.destroy(); // 다른 세션도 같이 지워지기 때문에 안 하는게..
   res.redirect("/");
 });
+
+router.get("/kakao", passport.authenticate("kakao"));
+
+router.get(
+  "/kakao/callback",
+  passport.authenticate("kakao", {
+    failureRedirect: "/"
+  }),
+  (req, res) => {
+    res.redirect("/");
+  }
+);
 
 module.exports = router;

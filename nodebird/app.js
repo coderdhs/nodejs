@@ -7,8 +7,10 @@ const flash = require("connect-flash");
 const passport = require("passport");
 require("dotenv").config();
 
-const indexRouter = require("./routes");
-// const userRouter = require("./routes/user");
+const pageRouter = require("./routes/page");
+const authRouter = require("./routes/auth");
+const userRouter = require("./routes/user");
+const postRouter = require("./routes/post");
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
 
@@ -22,6 +24,7 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/img", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("process.env.COOKIE_SECRET"));
@@ -40,7 +43,10 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/", indexRouter);
+app.use("/", pageRouter);
+app.use("/auth", authRouter);
+app.use("/post", postRouter);
+app.use("/user", userRouter);
 
 app.use((req, res, next) => {
   const err = new Error("not found");
